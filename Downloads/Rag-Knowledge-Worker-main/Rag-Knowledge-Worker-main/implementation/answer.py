@@ -90,7 +90,7 @@ def answer_question(question, history=None):
     if history is None:
         history = []
 
-    # Load only when needed (reduces startup memory)
+    # Load only when user asks a question
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
