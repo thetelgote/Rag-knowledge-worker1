@@ -74,8 +74,6 @@
 
 #     return answer, docs
 
-
-
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from pathlib import Path
@@ -84,28 +82,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-db = FAISS.load_local(
-    str(BASE_DIR / "faiss_index"),
-    embeddings,
-    allow_dangerous_deserialization=True
-)
-
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    temperature=0
-)
 
 
 def answer_question(question, history=None):
 
     if history is None:
         history = []
+
+    # Load only when needed (reduces startup memory)
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    db = FAISS.load_local(
+        str(BASE_DIR / "faiss_index"),
+        embeddings,
+        allow_dangerous_deserialization=True
+    )
+
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0
+    )
 
     docs = db.similarity_search(question, k=10)
 
